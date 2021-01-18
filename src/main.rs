@@ -1,22 +1,26 @@
+#![feature(start)]
 #![no_std]
 #![no_main]
-#![allow(dead_code)]
 
 use core::panic::PanicInfo;
 
-mod vga_buffer;
+const VGA_BUFFER: *mut u8 = 0xb8000 as *mut u8;
 
-
-#[no_mangle] // makes function name not change
+#[no_mangle]
 extern "C" fn _start() -> ! {
-    vga_buffer::print_something();
+    for (i, &byte) in b"Hello World!".iter().enumerate() {
+        unsafe {
+            *VGA_BUFFER.offset(i as isize * 2) = byte;
+            *VGA_BUFFER.offset(i as isize * 2 + 1) = 0xb;
+        }
+    }
+
 
     loop {}
 }
 
 
-
-#[panic_handler] // gets invoked if program panics (should never happen)
+#[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
