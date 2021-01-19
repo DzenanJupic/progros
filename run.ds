@@ -1,2 +1,0 @@
-exec cargo bootimage
-exec qemu-system-x86_64 -drive format=raw,file=target/x86_64-unkown-none/debug/bootimage-progros.bin

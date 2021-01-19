@@ -1,26 +1,33 @@
-#![feature(start)]
+#![feature(bool_to_option, const_mut_refs, const_raw_ptr_deref, asm, naked_functions)]
 #![no_std]
 #![no_main]
 
 use core::panic::PanicInfo;
 
+use crate::vga::buffer::Buffer;
+use crate::vga::Char;
+
+mod vga;
+
 const VGA_BUFFER: *mut u8 = 0xb8000 as *mut u8;
 
 #[no_mangle]
 extern "C" fn _start() -> ! {
-    for (i, &byte) in b"Hello World!".iter().enumerate() {
-        unsafe {
-            *VGA_BUFFER.offset(i as isize * 2) = byte;
-            *VGA_BUFFER.offset(i as isize * 2 + 1) = 0xb;
-        }
-    }
+    println!("Hello {}!", "World");
 
-
-    loop {}
+    loop { hlt() }
 }
 
 
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {}
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
+    loop { hlt() }
+}
+
+#[naked]
+fn hlt() {
+    unsafe {
+        asm!("HLT")
+    }
 }
